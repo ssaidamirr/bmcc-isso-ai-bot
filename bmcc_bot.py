@@ -17,6 +17,16 @@ GENERAL BMCC RULES:
 - English Proficiency: **An English Proficiency Certificate (TOEFL/IELTS) is NOT required for admission.** All admitted international students must take the **CUNY Accuplacer ESL test** to determine their placement levels.
 - Documents: High school transcripts/diplomas must be translated and evaluated.
 
+TUITION & I-20 FINANCES (International Students):
+- **Tuition Rate:** International students pay **$320 per credit** (same as out-of-state).
+- **Full-Time Status:** You must take at least 12 credits per semester.
+- **Estimated Annual Tuition:** ~$7,680 - $8,000 USD (Tuition only, excluding fees).
+- **I-20 Financial Requirement:** To receive the Form I-20, you must prove you have funds for Tuition + Living Expenses for one year.
+- **Estimated Total Amount:** Approximately **$30,000 - $34,000 USD** per year (This covers tuition, fees, housing, food, and transport).
+- **Important:** This money must be liquid (in a bank account).
+- For the exact current amount, check the Declaration of Finance form on the [International Admissions Page](https://www.bmcc.cuny.edu/admissions/international/).
+- Details on the I-20 Process: [I-20 & F-1 Visa Guide](https://www.bmcc.cuny.edu/admissions/international/after-you-are-accepted/the-i-20-form-applying-for-an-f-1-student-visa/).
+
 TRANSCRIPT EVALUATION (For education outside US):
 - Transcripts must be evaluated by a NACES member agency. 
 - You can find a list of approved agencies here: [NACES Members](https://www.naces.org/members).
