@@ -13,7 +13,8 @@ st.set_page_config(page_title="BMCC International Guide", page_icon="🗽", layo
 BMCC_KNOWLEDGE_BASE = """
 GENERAL BMCC RULES:
 - BMCC is a CUNY college. All applications must be submitted via the [CUNY Application Portal](https://www.cuny.edu/admissions/undergraduate/apply/).
-- Application Fee: $65.
+- Application Fee: **$65 for Freshman** applicants, **$70 for Transfer** applicants.
+- **Important:** There are **NO fee waivers** available for international students.
 - English Proficiency: **An English Proficiency Certificate (TOEFL/IELTS) is NOT required for admission.** All admitted international students must take the **CUNY Accuplacer ESL test** to determine their placement levels.
 - Documents: High school transcripts/diplomas must be translated and evaluated.
 
@@ -21,20 +22,40 @@ TUITION & FEES (International Students):
 - **Tuition Basis:** Tuition is charged **per credit** or per "contact hour".
 - **Rate:** International students pay the Non-Resident rate of **$320 per credit**.
 - **Full-Time Requirement:** To maintain F-1 status, you **MUST** take at least **12 credits** (or billable equivalent hours) per semester.
-- **Estimated Annual Tuition:** ~$7,680 USD (Based on 12 credits x 2 semesters).
-- **Fees:** Additional mandatory fees (Technology, Student Activity, etc.) are approx. $400-$500 per semester.
+- **Estimated Tuition:** ~$8,050 USD per academic year (Tuition + Fees, excluding living expenses).
 
 I-20 FINANCIAL REQUIREMENTS (Proof of Funds):
-To receive the Form I-20, you must prove you have liquid funds to cover 1 year of Tuition + Living Expenses.
-- **Total Estimated Amount:** Approximately **$34,316 USD** per year.
-- **Breakdown:**
-  - Tuition & Fees: ~$8,000
-  - Living Expenses (Housing, Food, Transport): ~$26,000
-- **Housing Options:**
-  - **Option 1 (Paying for own housing):** Must show full amount (~$34k).
-  - **Option 2 (Free Room & Board):** If living with a friend/relative in the US for free, submit a "Room and Board Affidavit". This reduces the required proof of funds to approx. **$17,775 USD**.
-- **Dependents (F-2):** Add **$15,000** for each spouse/child accompanying you.
-- [How to Receive I-20 Guide](https://www.bmcc.cuny.edu/admissions/international/after-you-are-accepted/the-i-20-form-applying-for-an-f-1-student-visa/)
+To receive the Form I-20, you must prove funding based on the following official calculations.
+
+**1. Estimated Costs (One Year):**
+- Tuition and Fees: **$8,050**
+- Living Expenses: **$36,454**
+- **One-Year Total:** $44,504
+- **Two-Year Total:** $89,008
+
+**2. Required Proof Amounts:**
+- **Option A: Paying For Yourself (Self-Sponsor):** - You must show a Bank Statement with **$89,008** (Total for 2 years).
+  - The account must be in your name only.
+- **Option B: Sponsored by Someone Else:**
+  - Sponsors must show **Annual Income** of **$133,512** (3x the one-year cost).
+  - *Calculation:* ($44,504 x 3 = $133,512).
+  - *Documents:* Sponsor's Tax Return (Proof of Income) AND Bank Statement (Proof of Current Finances).
+
+**3. Reductions (Free Room & Board):**
+- If living with a relative/friend in the US for free, submit a "Room and Board Affidavit" + Lease/Deed.
+- Value of Room & Board Deduction: **$17,928 per year**.
+- **New Total Required:** **$53,152** (Calculation: $89,008 - $17,928 [Year 1] - $17,928 [Year 2]).
+
+**4. Dependents (F-2):**
+- Spouse: Add **$8,000**.
+- Child: Add **$5,000** each.
+
+**Documents to Submit:**
+- **Self-Sponsored:** Bank Statement in student's name.
+- **Sponsors:** - Proof of Income: Signed Tax Return (Form 1040/1040A) OR Employer Letter + 3 months paystubs.
+  - Proof of Finances: Bank statement (last 3 months).
+
+[How to Receive I-20 Guide & Forms](https://www.bmcc.cuny.edu/admissions/international/after-you-are-accepted/the-i-20-form-applying-for-an-f-1-student-visa/)
 
 SCHOLARSHIPS & FINANCIAL AID:
 - **Federal Aid:** International students are **NOT** eligible for FAFSA or NY State aid (TAP).
@@ -111,7 +132,8 @@ def get_ai_response(user_query, profile):
         "1. Answer ONLY based on the context and user profile."
         "2. Provide answers in clear, simple Step 1, Step 2, Step 3 format."
         "3. Use [Link Text](URL) format for hyperlinks provided in the context."
-        "4. YOU MUST RESPOND IN JSON FORMAT with two keys: 'answer' (the string response) and 'suggestions' (a list of 3 short, relevant, PROGRESSIVE follow-up questions based on your answer. If you just explained how to apply, suggest asking about documents or tuition next)."
+        "4. **FORMATTING:** Use consistent Markdown. Do NOT switch fonts. Use bolding for emphasis, but keep the text style uniform."
+        "5. YOU MUST RESPOND IN JSON FORMAT with two keys: 'answer' (the string response) and 'suggestions' (a list of 3 short, relevant, PROGRESSIVE follow-up questions based on your answer. If you just explained how to apply, suggest asking about documents or tuition next)."
     )
 
     payload = {
