@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import json
+import time
 
 # --- CONFIGURATION ---
 GEMINI_MODEL = 'gemini-2.5-flash-preview-09-2025'
@@ -142,20 +143,37 @@ def get_ai_response(user_query, profile):
         "generationConfig": {"responseMimeType": "application/json"}
     }
 
-    try:
-        response = requests.post(
-            API_URL + api_key,
-            headers={'Content-Type': 'application/json'},
-            data=json.dumps(payload),
-            timeout=30
-        )
-        if response.status_code == 200:
-            content = response.json()['candidates'][0]['content']['parts'][0]['text']
-            return json.loads(content)
-        else:
-            return {"answer": f"Error connecting to AI: {response.status_code}", "suggestions": []}
-    except Exception as e:
-        return {"answer": f"Error: {e}", "suggestions": []}
+    # Retry Logic for 503 Errors
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(
+                API_URL + api_key,
+                headers={'Content-Type': 'application/json'},
+                data=json.dumps(payload),
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                content = response.json()['candidates'][0]['content']['parts'][0]['text']
+                return json.loads(content)
+            
+            elif response.status_code == 503:
+                # 503 Service Unavailable - Wait and retry
+                wait_time = 2 ** attempt # Exponential backoff: 1, 2, 4, 8, 16 seconds
+                time.sleep(wait_time)
+                continue
+            
+            else:
+                return {"answer": f"Error connecting to AI: {response.status_code}", "suggestions": []}
+                
+        except Exception as e:
+            if attempt == max_retries - 1:
+                return {"answer": f"Error: {e}", "suggestions": []}
+            time.sleep(2 ** attempt)
+            continue
+
+    return {"answer": "The AI service is currently busy. Please try again in a moment.", "suggestions": []}
 
 # --- HELPER: Handle Button Click ---
 def handle_suggestion(question):
