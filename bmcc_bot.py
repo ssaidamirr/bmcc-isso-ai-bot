@@ -12,25 +12,31 @@ st.set_page_config(page_title="BMCC International Guide", page_icon="🗽", layo
 # --- KNOWLEDGE BASE ---
 BMCC_KNOWLEDGE_BASE = """
 GENERAL BMCC RULES:
-- BMCC is a CUNY college. Applications go through CUNY.
+- BMCC is a CUNY college. All applications must be submitted via the [CUNY Application Portal](https://www.cuny.edu/admissions/undergraduate/apply/).
 - Application Fee: $65.
-- English Proficiency: TOEFL (45), IELTS (5.0), Duolingo (75), or PTE (39).
-- Exempt from English test if: From English-speaking country or completed English Comp I at a US college with C or better.
+- English Proficiency: **An English Proficiency Certificate (TOEFL/IELTS) is NOT required for admission.** All admitted international students must take the **CUNY Accuplacer ESL test** to determine their placement levels.
+- Documents: High school transcripts/diplomas must be translated and evaluated.
 
 TRANSCRIPT EVALUATION (For education outside US):
-- Must use a NACES member agency (like WES, ECE, Josef Silny).
-- Required for all students with non-US transcripts.
+- Transcripts must be evaluated by a NACES member agency. 
+- You can find a list of approved agencies here: [NACES Members](https://www.naces.org/members).
+- Common agencies include WES, ECE, and Josef Silny.
 
 SEVIS TRANSFER (For F-1 Students Currently in US):
 - ACADEMIC STATUS: If coming from ESL school -> Apply as Freshman. If coming from University -> Apply as Transfer.
 - IMMIGRATION STATUS: Both must do "SEVIS Transfer".
 - Process: 1. Get Acceptance Letter. 2. Fill out Transfer Release Form. 3. Current school releases SEVIS record.
 
-CHANGE OF STATUS (B1/B2/J1 to F-1):
+CHANGE OF STATUS (B1/B2/J1 to F-1 inside US):
+- **Warning:** Changing status inside the US takes a long time (often 12+ months).
 - BMCC does NOT assist with the legal application (Form I-539).
 - BMCC ONLY provides the Form I-20 labeled "Initial Attendance - Change of Status".
-- User must consult an immigration lawyer.
-- B1/B2 holders CANNOT study until status is officially changed to F-1.
+- Students **MUST** consult an immigration lawyer for the legal process.
+- B1/B2 holders **CANNOT** study until status is officially approved to F-1.
+
+APPLYING FOR F-1 VISA (Consular Processing outside US):
+- For students outside US or those choosing to leave the US to apply.
+- Process: 1. Get Accepted. 2. Receive I-20 from BMCC. 3. Pay SEVIS I-901 Fee. 4. Complete DS-160 and schedule interview at US Embassy.
 
 DEADLINES:
 - Fall: Feb 1 (Priority).
@@ -50,13 +56,20 @@ if 'profile' not in st.session_state:
     }
 if 'messages' not in st.session_state:
     st.session_state.messages = []
+if 'suggestions' not in st.session_state:
+    # Default suggestions for the start
+    st.session_state.suggestions = [
+        "What are the application deadlines?",
+        "How do I submit my transcripts?",
+        "How much is the tuition?"
+    ]
 
 # --- HELPER: Gemini API Call ---
 def get_ai_response(user_query, profile):
     try:
         api_key = st.secrets["GEMINI_API_KEY"]
     except KeyError:
-        return "Error: API Key missing. Please set it in Streamlit Secrets."
+        return {"answer": "Error: API Key missing. Please set it in Streamlit Secrets.", "suggestions": []}
 
     profile_summary = (
         f"User is {profile['location']}. "
@@ -71,14 +84,15 @@ def get_ai_response(user_query, profile):
         f"USER PROFILE: {profile_summary}\n\n"
         "RULES:"
         "1. Answer ONLY based on the context and user profile."
-        "2. If user is F-1 at an ESL school, treat them as an ACADEMIC FRESHMAN but explain the SEVIS TRANSFER process."
-        "3. If user is B1/B2/J1, EXPLICITLY state BMCC only provides the I-20 and they MUST consult a lawyer for status change."
-        "4. Keep answers concise, friendly, and structured (Step 1, Step 2, Step 3)."
+        "2. Provide answers in clear, simple Step 1, Step 2, Step 3 format."
+        "3. Use [Link Text](URL) format for hyperlinks provided in the context."
+        "4. YOU MUST RESPOND IN JSON FORMAT with two keys: 'answer' (the string response) and 'suggestions' (a list of 3 short, relevant follow-up questions strings based on your answer)."
     )
 
     payload = {
         "contents": [{"role": "user", "parts": [{"text": user_query}]}],
-        "systemInstruction": {"parts": [{"text": system_instruction}]}
+        "systemInstruction": {"parts": [{"text": system_instruction}]},
+        "generationConfig": {"responseMimeType": "application/json"}
     }
 
     try:
@@ -89,11 +103,12 @@ def get_ai_response(user_query, profile):
             timeout=30
         )
         if response.status_code == 200:
-            return response.json()['candidates'][0]['content']['parts'][0]['text']
+            content = response.json()['candidates'][0]['content']['parts'][0]['text']
+            return json.loads(content)
         else:
-            return f"Error connecting to AI: {response.status_code}"
+            return {"answer": f"Error connecting to AI: {response.status_code}", "suggestions": []}
     except Exception as e:
-        return f"Error: {e}"
+        return {"answer": f"Error: {e}", "suggestions": []}
 
 # --- HELPER: Handle Button Click ---
 def handle_suggestion(question):
@@ -115,6 +130,7 @@ with st.sidebar:
         if st.button("Start Over"):
             st.session_state.step = 1
             st.session_state.messages = []
+            st.session_state.suggestions = ["What are the application deadlines?", "How do I submit transcripts?", "Tuition costs?"]
             st.rerun()
 
 # --- UI: PROFILE WIZARD ---
@@ -148,21 +164,18 @@ elif st.session_state.step == 2: # Inside US Flow
         
     if col2.button("B-1 / B-2 (Visitor)", use_container_width=True):
         st.session_state.profile['visa_status'] = "B-1/B-2 Visitor"
-        st.session_state.profile['immigration_needs'] = "Change of Status (Requires Lawyer)"
-        st.session_state.step = 3 # Go to Education check
+        st.session_state.step = 2.8 # Ask about plan
         st.rerun()
         
     col3, col4 = st.columns(2)
     if col3.button("J-1 (Exchange)", use_container_width=True):
         st.session_state.profile['visa_status'] = "J-1 Exchange"
-        st.session_state.profile['immigration_needs'] = "Change of Status (Requires Lawyer)"
-        st.session_state.step = 3
+        st.session_state.step = 2.8 # Ask about plan
         st.rerun()
         
     if col4.button("Other / Not Sure", use_container_width=True):
         st.session_state.profile['visa_status'] = "Other"
-        st.session_state.profile['immigration_needs'] = "Consult International Office"
-        st.session_state.step = 3
+        st.session_state.step = 2.8 # Ask about plan
         st.rerun()
 
 elif st.session_state.step == 2.5: # F-1 Specific Flow
@@ -181,7 +194,21 @@ elif st.session_state.step == 2.5: # F-1 Specific Flow
         st.session_state.step = 5 # Done
         st.rerun()
 
-elif st.session_state.step == 3: # General Education Check (Outside US or B1/B2)
+elif st.session_state.step == 2.8: # Non-F1 Inside US Logic
+    st.subheader("Step 2b: How do you plan to obtain F-1 Status?")
+    st.warning("You are currently inside the US but not on F-1 status.")
+    
+    if st.button("I want to Change Status inside the US", use_container_width=True):
+        st.session_state.profile['immigration_needs'] = "Change of Status (Requires Lawyer)"
+        st.session_state.step = 3
+        st.rerun()
+        
+    if st.button("I will travel and apply for F-1 Visa outside the US", use_container_width=True):
+        st.session_state.profile['immigration_needs'] = "Consular Processing (Apply Outside US)"
+        st.session_state.step = 3
+        st.rerun()
+
+elif st.session_state.step == 3: # General Education Check
     st.subheader("Step 3: What is your education history?")
     
     if st.button("I have High School / Secondary School only", use_container_width=True):
@@ -203,10 +230,12 @@ elif st.session_state.step == 5:
         
         if p['visa_status'] == 'F-1 Student':
             greeting += " Since you are on F-1, I can guide you through the **SEVIS Transfer** process."
-        elif p['location'] == 'Outside US':
-            greeting += " I can help you with the application and **F-1 Visa Interview** steps."
         elif "Change of Status" in str(p['immigration_needs']):
-            greeting += " ⚠️ **Important:** Since you are on a visitor visa, you will likely need a **Change of Status**. BMCC can provide the I-20, but you must work with a lawyer for the legal process."
+            greeting += " ⚠️ **Important:** You selected **Change of Status**. BMCC can provide the I-20, but you **must** work with an immigration lawyer for the legal I-539 application. You cannot study until approved."
+        elif "Consular Processing" in str(p['immigration_needs']):
+            greeting += " You will need to apply to BMCC, receive your I-20, and then travel to apply for your F-1 visa at a US Consulate."
+        else:
+            greeting += " I can help you with the application and F-1 Visa steps."
             
         st.session_state.messages.append({"role": "assistant", "content": greeting})
 
@@ -215,43 +244,34 @@ elif st.session_state.step == 5:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # 3. Generate Logic for Last Message
+    # 3. Generate Logic for Last Message (if user just typed)
     if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
         user_query = st.session_state.messages[-1]["content"]
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = get_ai_response(user_query, st.session_state.profile)
-                st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
-        st.rerun() # Rerun to show buttons below the new response
+                response_data = get_ai_response(user_query, st.session_state.profile)
+                answer = response_data.get("answer", "Error processing response.")
+                new_suggestions = response_data.get("suggestions", [])
+                
+                st.markdown(answer)
+                st.session_state.messages.append({"role": "assistant", "content": answer})
+                
+                # Update suggestions if valid
+                if new_suggestions:
+                    st.session_state.suggestions = new_suggestions
+        st.rerun()
 
-    # 4. Suggested Questions (Buttons)
-    # Only show if the last message was from the assistant
+    # 4. Dynamic Suggested Questions
     if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
         st.write("---")
         st.caption("Suggested Questions:")
         cols = st.columns(3)
-        
-        p = st.session_state.profile
-        
-        # Dynamic Button Logic
-        if p['immigration_needs'] == "SEVIS Transfer":
-            if cols[0].button("How do I transfer my SEVIS?"):
-                handle_suggestion("What are the steps to transfer my SEVIS record to BMCC?")
-        elif "Change of Status" in str(p['immigration_needs']):
-            if cols[0].button("Process for Change of Status"):
-                handle_suggestion("What documents does BMCC give for Change of Status?")
-        else:
-            if cols[0].button("How do I get an I-20?"):
-                handle_suggestion("What documents do I need to upload for the I-20?")
-
-        if cols[1].button("Application Deadlines"):
-            handle_suggestion("When is the deadline for the next semester?")
-            
-        if cols[2].button("Tuition Costs"):
-            handle_suggestion("How much is tuition for international students?")
+        for i, suggestion in enumerate(st.session_state.suggestions):
+            if i < 3: # Ensure max 3 buttons
+                if cols[i].button(suggestion, key=f"sugg_{len(st.session_state.messages)}_{i}"):
+                    handle_suggestion(suggestion)
 
     # 5. Chat Input
-    if prompt := st.chat_input("Ask a specific question..."):
+    if prompt := st.chat_input("Ask specific questions here..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.rerun()
