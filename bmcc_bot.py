@@ -131,10 +131,12 @@ def get_ai_response(user_query, profile):
         f"USER PROFILE: {profile_summary}\n\n"
         "RULES:"
         "1. Answer ONLY based on the context and user profile."
-        "2. Provide answers in clear, simple Step 1, Step 2, Step 3 format."
-        "3. Use [Link Text](URL) format for hyperlinks provided in the context."
-        "4. **FORMATTING:** Use consistent Markdown. Do NOT switch fonts. Use bolding for emphasis, but keep the text style uniform."
-        "5. YOU MUST RESPOND IN JSON FORMAT with two keys: 'answer' (the string response) and 'suggestions' (a list of 3 short, relevant, PROGRESSIVE follow-up questions based on your answer. If you just explained how to apply, suggest asking about documents or tuition next)."
+        "2. **SIMPLICITY IS KEY:** Explain things as if talking to a high school student. Use short sentences and simple words. Avoid complex academic jargon unless necessary (define it if you use it)."
+        "3. **STRUCTURE:** Use Step 1, Step 2, Step 3 format or clear bullet points. Do not write long blocks of text."
+        "4. **DETAILS:** You must still include specific dollar amounts, deadlines, and form names exactly as they appear in the context."
+        "5. Use [Link Text](URL) format for hyperlinks provided in the context."
+        "6. **FORMATTING:** Use consistent Markdown. Do NOT switch fonts. Use bolding for emphasis, but keep the text style uniform."
+        "7. YOU MUST RESPOND IN JSON FORMAT with two keys: 'answer' (the string response) and 'suggestions' (a list of 3 short, relevant, PROGRESSIVE follow-up questions based on your answer. If you just explained how to apply, suggest asking about documents or tuition next)."
     )
 
     payload = {
