@@ -17,15 +17,30 @@ GENERAL BMCC RULES:
 - English Proficiency: **An English Proficiency Certificate (TOEFL/IELTS) is NOT required for admission.** All admitted international students must take the **CUNY Accuplacer ESL test** to determine their placement levels.
 - Documents: High school transcripts/diplomas must be translated and evaluated.
 
-TUITION & I-20 FINANCES (International Students):
-- **Tuition Rate:** International students pay **$320 per credit** (same as out-of-state).
-- **Full-Time Status:** You must take at least 12 credits per semester.
-- **Estimated Annual Tuition:** ~$7,680 - $8,000 USD (Tuition only, excluding fees).
-- **I-20 Financial Requirement:** To receive the Form I-20, you must prove you have funds for Tuition + Living Expenses for one year.
-- **Estimated Total Amount:** Approximately **$30,000 - $34,000 USD** per year (This covers tuition, fees, housing, food, and transport).
-- **Important:** This money must be liquid (in a bank account).
-- For the exact current amount, check the Declaration of Finance form on the [International Admissions Page](https://www.bmcc.cuny.edu/admissions/international/).
-- Details on the I-20 Process: [I-20 & F-1 Visa Guide](https://www.bmcc.cuny.edu/admissions/international/after-you-are-accepted/the-i-20-form-applying-for-an-f-1-student-visa/).
+TUITION & FEES (International Students):
+- **Tuition Basis:** Tuition is charged **per credit** or per "contact hour".
+- **Rate:** International students pay the Non-Resident rate of **$320 per credit**.
+- **Full-Time Requirement:** To maintain F-1 status, you **MUST** take at least **12 credits** (or billable equivalent hours) per semester.
+- **Estimated Annual Tuition:** ~$7,680 USD (Based on 12 credits x 2 semesters).
+- **Fees:** Additional mandatory fees (Technology, Student Activity, etc.) are approx. $400-$500 per semester.
+
+I-20 FINANCIAL REQUIREMENTS (Proof of Funds):
+To receive the Form I-20, you must prove you have liquid funds to cover 1 year of Tuition + Living Expenses.
+- **Total Estimated Amount:** Approximately **$34,316 USD** per year.
+- **Breakdown:**
+  - Tuition & Fees: ~$8,000
+  - Living Expenses (Housing, Food, Transport): ~$26,000
+- **Housing Options:**
+  - **Option 1 (Paying for own housing):** Must show full amount (~$34k).
+  - **Option 2 (Free Room & Board):** If living with a friend/relative in the US for free, submit a "Room and Board Affidavit". This reduces the required proof of funds to approx. **$17,775 USD**.
+- **Dependents (F-2):** Add **$15,000** for each spouse/child accompanying you.
+- [How to Receive I-20 Guide](https://www.bmcc.cuny.edu/admissions/international/after-you-are-accepted/the-i-20-form-applying-for-an-f-1-student-visa/)
+
+SCHOLARSHIPS & FINANCIAL AID:
+- **Federal Aid:** International students are **NOT** eligible for FAFSA or NY State aid (TAP).
+- **BMCC Scholarships:** You may apply for scholarships **after your first semester** if you maintain a high GPA.
+  - Examples: **BMCC Foundation Scholarship**, **SGA Scholarship**, **Out-In-Two**.
+- **More Info:** [Scholarship Opportunities](https://www.bmcc.cuny.edu/students/scholarships-awards-other-opportunities/)
 
 TRANSCRIPT EVALUATION (For education outside US):
 - Transcripts must be evaluated by a NACES member agency. 
@@ -67,11 +82,11 @@ if 'profile' not in st.session_state:
 if 'messages' not in st.session_state:
     st.session_state.messages = []
 if 'suggestions' not in st.session_state:
-    # Default suggestions for the start
+    # UPDATED: Progressive starting questions
     st.session_state.suggestions = [
-        "What are the application deadlines?",
-        "How do I submit my transcripts?",
-        "How much is the tuition?"
+        "How do I apply to BMCC?",
+        "What documents do I need?",
+        "When is the deadline?"
     ]
 
 # --- HELPER: Gemini API Call ---
@@ -96,7 +111,7 @@ def get_ai_response(user_query, profile):
         "1. Answer ONLY based on the context and user profile."
         "2. Provide answers in clear, simple Step 1, Step 2, Step 3 format."
         "3. Use [Link Text](URL) format for hyperlinks provided in the context."
-        "4. YOU MUST RESPOND IN JSON FORMAT with two keys: 'answer' (the string response) and 'suggestions' (a list of 3 short, relevant follow-up questions strings based on your answer)."
+        "4. YOU MUST RESPOND IN JSON FORMAT with two keys: 'answer' (the string response) and 'suggestions' (a list of 3 short, relevant, PROGRESSIVE follow-up questions based on your answer. If you just explained how to apply, suggest asking about documents or tuition next)."
     )
 
     payload = {
@@ -140,7 +155,11 @@ with st.sidebar:
         if st.button("Start Over"):
             st.session_state.step = 1
             st.session_state.messages = []
-            st.session_state.suggestions = ["What are the application deadlines?", "How do I submit transcripts?", "Tuition costs?"]
+            st.session_state.suggestions = [
+                "How do I apply to BMCC?",
+                "What documents do I need?",
+                "When is the deadline?"
+            ]
             st.rerun()
 
 # --- UI: PROFILE WIZARD ---
@@ -282,6 +301,7 @@ elif st.session_state.step == 5:
                     handle_suggestion(suggestion)
 
     # 5. Chat Input
+    st.caption("💡 Tip: If you don't understand any part, just ask me to explain it!")
     if prompt := st.chat_input("Ask specific questions here..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.rerun()
